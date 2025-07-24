@@ -1,0 +1,36 @@
+package golangweb
+
+import (
+	"fmt"
+	"html/template"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func SimpleHtmlTemplate(writer http.ResponseWriter, request *http.Request) {
+	templateText := `<html><body>{{.}}<body></html>`
+
+	// Versi 1 dengan menampilkan baris kode err
+	// tmpl, err := template.New("SIMPLE").Parse(templateText)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// versi 2 dengan Must(): tidak menampilkan baris kode err
+	tmpl := template.Must(template.New("SIMPLE").Parse(templateText))
+	tmpl.ExecuteTemplate(writer, "SIMPLE", "Hello World Template")
+}
+
+func TestSimpleHtmlTemplate(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+	recorder := httptest.NewRecorder()
+
+	SimpleHtmlTemplate(recorder, request)
+
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+
+	fmt.Println(string(body))
+}
