@@ -86,3 +86,21 @@ func TestRequestHeader(t *testing.T) {
 	
 	fmt.Println(string(body))
 }
+
+func ResponseHeader(w http.ResponseWriter, r *http.Request){
+	w.Header().Add("X-Powered-By", "Blue Dev")
+	fmt.Fprint(w, "OK")
+}
+func TestResponseHeader(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost:8080/", nil)
+	request.Header.Add("Content-Type", "application/json")
+	recorder := httptest.NewRecorder()
+
+	ResponseHeader(recorder, request)
+
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+	
+	fmt.Println(string(body))
+	fmt.Println(response.Header.Get("x-powered-by")) // tidak masalah karena http tidak case sensitive
+}
