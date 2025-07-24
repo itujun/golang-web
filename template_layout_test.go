@@ -15,8 +15,8 @@ var templatesLayout embed.FS
 
 func TemplateLayout(writer http.ResponseWriter, request *http.Request) {
 	tmpl := template.Must(template.ParseFS(templatesLayout, "templates/*.gohtml"))
-	tmpl.ExecuteTemplate(writer, "layout.gohtml", map[string]interface{}{
-		"Title": "Template Layout",
+	tmpl.ExecuteTemplate(writer, "layout", map[string]interface{}{
+		"Title": "Template Layout Name",
 		"Name":  "Lev",
 	})
 }
