@@ -34,3 +34,21 @@ func TestSimpleHtmlTemplate(t *testing.T) {
 
 	fmt.Println(string(body))
 }
+
+
+func SimpleHtmlTemplateFile(writer http.ResponseWriter, request *http.Request){
+	tmpl := template.Must(template.ParseFiles("./templates/simple.gohtml"))
+	tmpl.ExecuteTemplate(writer, "simple.gohtml", "Hello World Template")
+}
+
+func TestSimpleHtmlTemplateFile(t *testing.T){
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+	recorder := httptest.NewRecorder()
+
+	SimpleHtmlTemplateFile(recorder, request)
+
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+
+	fmt.Println(string(body))
+}
