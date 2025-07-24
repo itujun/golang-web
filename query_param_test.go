@@ -28,3 +28,23 @@ func TestQueryParameter(t *testing.T) {
 	
 	fmt.Println(string(body))
 }
+
+
+func SayHelloMultiple(w http.ResponseWriter, r *http.Request){
+	firstname := r.URL.Query().Get("first_name") // get parameter name pada url
+	lastname := r.URL.Query().Get("last_name") // get parameter name pada url
+	
+	fmt.Fprintf(w, "Hello %s %s", firstname, lastname)
+}
+
+func TestMultipleQueryParameter(t *testing.T) {
+	request := httptest.NewRequest("GET", "http://localhost:8080/?first_name=Lev&last_name=Tempest", nil)
+	recorder := httptest.NewRecorder()
+
+	SayHelloMultiple(recorder, request)
+
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+	
+	fmt.Println(string(body))
+}
