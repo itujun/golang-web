@@ -1,6 +1,7 @@
 package golangweb
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -64,6 +65,25 @@ func TestSimpleHtmlTemplateDirectory(t *testing.T){
 	recorder := httptest.NewRecorder()
 
 	SimpleHtmlTemplateDirectory(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
+
+
+//go:embed templates/*.gohtml
+var templates embed.FS
+
+func SimpleHtmlTemplateEmbed(writer http.ResponseWriter, request *http.Request){
+	tmpl := template.Must(template.ParseFS(templates, "templates/*.gohtml"))
+	tmpl.ExecuteTemplate(writer, "simple.gohtml", "Hello World Template")
+} 
+
+func TestSimpleHtmlTemplateEmbed(t *testing.T){
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+	recorder := httptest.NewRecorder()
+
+	SimpleHtmlTemplateEmbed(recorder, request)	
 
 	body, _ := io.ReadAll(recorder.Result().Body)
 	fmt.Println(string(body))
