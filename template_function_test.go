@@ -32,3 +32,20 @@ func TestTemplateFunction(t *testing.T) {
 	body, _ := io.ReadAll(recorder.Result().Body)
 	fmt.Println(string(body))
 }
+
+func TemplateFunctionGlobal(writer http.ResponseWriter, request *http.Request) {
+	// ? Link Global Function: https://github.com/golang/go/blob/master/src/text/template/funcs.go
+	tmpl := template.Must(template.New("FUNCTION").Parse(`{{ len .Name}}`))
+
+	tmpl.ExecuteTemplate(writer, "FUNCTION", myInfo{Name: "Learn Go-Lang"})
+}
+
+func TestTemplateFunctionGlobal(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080/", nil)
+	recorder := httptest.NewRecorder()
+
+	TemplateFunctionGlobal(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
