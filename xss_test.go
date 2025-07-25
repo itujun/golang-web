@@ -56,7 +56,36 @@ func TestTemplateAutoEscapeDisabled(t *testing.T) {
 }
 
 func TestTemplateAutoEscapeDisabledServer(t *testing.T) {
-	server := http.Server{Addr: "localhost:8080", Handler: http.HandlerFunc(TemplateAutoEscape)}
+	server := http.Server{Addr: "localhost:8080", Handler: http.HandlerFunc(TemplateAutoEscapeDisabled)}
+
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
+}
+
+
+
+func TemplateXSS(writer http.ResponseWriter, request *http.Request) {
+	myTemplates.ExecuteTemplate(writer, "post.gohtml", map[string]interface{}{
+		"Title":   "Hello World",
+		"Body": template.HTML(request.URL.Query().Get("body")),
+	})
+} 
+
+func TestTemplateXSS(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080/?body=<p>Alert</p>", nil)
+	// ? jalankan server, lalu ketikkan pada url browser: // http://localhost:8080/?body=<p>Hengker is here</p><script>alert('Kamu di heck')</script>
+	recorder := httptest.NewRecorder()
+
+	TemplateXSS(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
+
+func TestTemplateXSSServer(t *testing.T) {
+	server := http.Server{Addr: "localhost:8080", Handler: http.HandlerFunc(TemplateXSS)}
 
 	err := server.ListenAndServe()
 	if err != nil {
