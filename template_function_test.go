@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -45,6 +46,65 @@ func TestTemplateFunctionGlobal(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	TemplateFunctionGlobal(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
+
+
+func TemplateFunctionGlobalCreate(writer http.ResponseWriter, request *http.Request) {
+	// membuat function baru
+	tmpl := template.New("FUNCTION")
+
+	// daftarkan global function yang sudah dibuat
+	tmpl = tmpl.Funcs(map[string]interface{}{
+		"upper": func(val string) string {
+			return strings.ToUpper(val)
+		},
+	})
+
+	// parse template
+	tmpl = template.Must(tmpl.Parse(`{{ upper .Name }}`))
+
+	tmpl.ExecuteTemplate(writer, "FUNCTION", myInfo{Name: "Lev Tempest"})
+}
+
+func TestTemplateFunctionGlobalCreate(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080/", nil)
+	recorder := httptest.NewRecorder()
+
+	TemplateFunctionGlobalCreate(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
+
+
+func TemplateFunctionPipeline(writer http.ResponseWriter, request *http.Request) {
+	// membuat function baru
+	tmpl := template.New("FUNCTION")
+
+	// daftarkan global function yang sudah dibuat
+	tmpl = tmpl.Funcs(map[string]interface{}{
+		"sayHello": func(name string) string {
+			return "Hello " + name
+		},
+		"upper": func(val string) string {
+			return strings.ToUpper(val)
+		},
+	})
+
+	// parse template
+	tmpl = template.Must(tmpl.Parse(`{{ sayHello .Name | upper }}`))
+
+	tmpl.ExecuteTemplate(writer, "FUNCTION", myInfo{Name: "Lev Tempest"})
+}
+
+func TestTemplateFunctionPipeline(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080/", nil)
+	recorder := httptest.NewRecorder()
+
+	TemplateFunctionPipeline(recorder, request)
 
 	body, _ := io.ReadAll(recorder.Result().Body)
 	fmt.Println(string(body))
