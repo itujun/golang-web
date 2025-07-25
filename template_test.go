@@ -1,7 +1,6 @@
 package golangweb
 
 import (
-	"embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -70,9 +69,7 @@ func TestSimpleHtmlTemplateDirectory(t *testing.T){
 	fmt.Println(string(body))
 }
 
-
-//go:embed templates/*.gohtml
-var templates embed.FS
+// kode dipindahkan ke template_caching_test.go
 
 func SimpleHtmlTemplateEmbed(writer http.ResponseWriter, request *http.Request){
 	tmpl := template.Must(template.ParseFS(templates, "templates/*.gohtml"))
